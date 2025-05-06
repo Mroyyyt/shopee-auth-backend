@@ -1,1 +1,11 @@
-
+{
+  "name": "shopee-auth-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
