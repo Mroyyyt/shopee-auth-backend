@@ -1,8 +1,8 @@
 const crypto = require('crypto');
 
 module.exports = async (req, res) => {
-  const partner_id = 1279559; // Ganti dengan Partner ID kamu
-  const partner_key = '654a6f4b49514a6d534470596d5254657555634d784d704363734b58686f4c69'; // Ganti dengan partner key asli dari Shopee
+  const partner_id = 1279559;
+  const partner_key = '654a6f4b49514a6d534470596d5254657555634d784d704363734b58686f4c69';
   const redirect = 'https://shopee-oauth-redirect.vercel.app/api/callback';
   const timestamp = Math.floor(Date.now() / 1000);
 
