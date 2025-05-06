@@ -1,17 +1,16 @@
-const crypto = require('crypto');
+const crypto = require("crypto");
 
-module.exports = async (req, res) => {
-  const partner_id = 1279559;
-  const partner_key = '654a6f4b49514a6d534470596d5254657555634d784d704363734b58686f4c69';
-  const redirect = 'https://shopee-oauth-redirect.vercel.app/api/callback';
+export default function handler(req, res) {
+  const partner_id = process.env.PARTNER_ID;
+  const partner_key = process.env.PARTNER_KEY;
+  const redirect = process.env.REDIRECT_URL;
+
   const timestamp = Math.floor(Date.now() / 1000);
+  const baseString = `${partner_id}${path}${timestamp}`;
+  const sign = crypto.createHmac('sha256', partner_key).update(baseString).digest('hex');
 
-  const baseString = `${partner_id}${redirect}${timestamp}`;
-  const sign = crypto.createHmac('sha256', partner_key)
-                     .update(baseString)
-                     .digest('hex');
+  const path = '/api/v2/shop/auth_partner';
+  const url = `https://partner.shopeemobile.com${path}?partner_id=${partner_id}&timestamp=${timestamp}&sign=${sign}&redirect=${redirect}`;
 
-  const authUrl = `https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=${partner_id}&redirect=${encodeURIComponent(redirect)}&timestamp=${timestamp}&sign=${sign}`;
-
-  res.redirect(authUrl);
-};
+  res.redirect(url);
+}
