@@ -1,60 +1,27 @@
 const express = require('express');
 const crypto = require('crypto');
-const axios = require('axios');
+require('dotenv').config();
+
 const app = express();
 
 const partner_id = process.env.PARTNER_ID;
 const partner_key = process.env.PARTNER_KEY;
 const redirect_url = process.env.REDIRECT_URL;
 
-app.get('/', async (req, res) => {
-  const { code, shop_id, partner_id: pid } = req.query;
-
-  if (!code || !shop_id || !pid) {
-    return res.send('Shopee Auth Backend is running. No auth data yet.');
-  }
-
-  // Timestamp and signature
+app.get('/', (req, res) => {
   const timestamp = Math.floor(Date.now() / 1000);
-  const path = '/api/v2/auth/token/get';
-
-  const baseString = `${partner_id}${path}${timestamp}${shop_id}`;
-  const signature = crypto
+  const baseString = `${partner_id}${redirect_url}${timestamp}`;
+  const sign = crypto
     .createHmac('sha256', partner_key)
     .update(baseString)
     .digest('hex');
 
-  try {
-    const response = await axios.post(
-      `https://partner.test-stable.shopeemobile.com${path}`,
-      {
-        code,
-        shop_id,
-        partner_id,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: signature,
-          Timestamp: timestamp,
-        },
-      }
-    );
+  const authUrl = `https://partner.test-stable.shopeemobile.com/api/v2/shop/auth_partner?partner_id=${partner_id}&timestamp=${timestamp}&sign=${sign}&redirect=${encodeURIComponent(redirect_url)}`;
 
-    res.json({
-      message: 'Token retrieved successfully',
-      data: response.data,
-    });
-  } catch (error) {
-    console.error('Token error:', error.response?.data || error.message);
-    res.status(500).json({
-      message: 'Failed to get token',
-      error: error.response?.data || error.message,
-    });
-  }
+  res.redirect(authUrl); // langsung arahkan ke login Shopee
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Shopee Auth backend running on port ${PORT}`);
+  console.log(`Shopee auth backend running at http://localhost:${PORT}`);
 });
